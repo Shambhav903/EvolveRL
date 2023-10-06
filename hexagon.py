@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jan 23 14:07:18 2022
-
-@author: richa
-"""
 from __future__ import annotations
 
 import math

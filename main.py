@@ -1,10 +1,3 @@
-
-"""
-Created on Sun Jan 23 13:50:07 2022
-
-@author: richa
-"""
-
 from typing import List
 from typing import Tuple
 
@@ -14,7 +7,7 @@ from hexagon import HexagonTile
 import random 
 import time
 
-# pylint: disable=no-member
+
 
 
 honey_color = tuple([255,195,11])
@@ -207,7 +200,7 @@ def main():
         #         ranpos(hexagons)
 
         # print(list_to_axial(4))
-        # time.sleep(0.2)
+        time.sleep(0.2)
         clock.tick(50)
     pygame.display.quit()
 
