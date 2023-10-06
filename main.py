@@ -7,9 +7,6 @@ from hexagon import HexagonTile
 import random 
 import time
 
-
-
-
 honey_color = tuple([255,195,11])
 honey_color_border  =  tuple([181,101,29])
 col = tuple([137,207,240])
