@@ -118,7 +118,7 @@ def render(screen, hexagons):
     pygame.display.flip()
 
 def direction_generator(currentx,currenty):
-    dir = random.randint(1,6)
+    dir = random.randint(1,7)
     x = currentx
     y = currenty
     if (dir == 1):
@@ -138,6 +138,9 @@ def direction_generator(currentx,currenty):
         y=y+1
     elif (dir == 6):
         x=x-1
+        y=y
+    elif (dir==7):
+        x=x
         y=y
     return x,y
 
