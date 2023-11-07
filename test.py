@@ -41,7 +41,10 @@ def axial_to_cube(axial_x, axial_y):
 
 
 
-def predator_vision(axial_x, axial_y, dir_vec):
+def predator_vision(axial_coordinate, dir_vec):
+    """ given axial coordinate and direction returns all axial coordinates that predetor can see
+    """
+    axial_x , axial_y = axial_coordinate
     initial_posx, initial_posy = axial_x , axial_y
     a,b,c,d = 0,0,0,0
     predVis = []
@@ -83,5 +86,5 @@ def predator_vision(axial_x, axial_y, dir_vec):
         
     return predVis
 
-print (predator_vision(0,0,1))
+print (predator_vision((0,0),1))
 
