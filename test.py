@@ -32,9 +32,19 @@ def check_prey(x,y):
 
 
 
+def axial_to_cube(axial_x, axial_y):
+    cube_s = 0
+    cube_q = axial_x
+    cube_r = axial_y
+    cube_s = - cube_q - cube_r
+    return (cube_q, cube_r, cube_s)
+
+
+
 def predator_vision(axial_x, axial_y, dir_vec):
     initial_posx, initial_posy = axial_x , axial_y
     a,b,c,d = 0,0,0,0
+    predVis = []
     if (dir_vec == 1):
         a=1
         b=-1
@@ -67,11 +77,11 @@ def predator_vision(axial_x, axial_y, dir_vec):
         d=1
     for i in range(0,3):
         for j in range(0,3):
-            check_x, check_y = (initial_posx + j*a), (initial_posy +j*b)
-            check_prey (check_x, check_y) #rightshift
-            print (check_x,check_y)
-        initial_posx, initial_posy= initial_posx + c*i, initial_posy+ d*i  #leftshift
-    return 0
+            check_x, check_y = (initial_posx + j*c), (initial_posy +j*d) #rightshift 
+            predVis.append((check_x,check_y))
+        initial_posx, initial_posy= initial_posx + a, initial_posy+ b  #leftshift
+        
+    return predVis
 
+print (predator_vision(0,0,1))
 
-predator_vision(1,0,0)
