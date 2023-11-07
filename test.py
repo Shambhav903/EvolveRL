@@ -20,71 +20,108 @@
 # if __name__ == "__main__":
 #     main()
 
-def axial_to_cube(axial_x, axial_y):
-    cube_s = 0
-    cube_q = axial_x
-    cube_r = axial_y
-    cube_s = - cube_q - cube_r
-    return (cube_q, cube_r, cube_s)
+# def axial_to_cube(axial_x, axial_y):
+#     cube_s = 0
+#     cube_q = axial_x
+#     cube_r = axial_y
+#     cube_s = - cube_q - cube_r
+#     return (cube_q, cube_r, cube_s)
 
-def check_prey(x,y):
-    return 0
-
-
-
-def axial_to_cube(axial_x, axial_y):
-    cube_s = 0
-    cube_q = axial_x
-    cube_r = axial_y
-    cube_s = - cube_q - cube_r
-    return (cube_q, cube_r, cube_s)
+# def check_prey(x,y):
+#     return 0
 
 
 
-def predator_vision(axial_coordinate, dir_vec):
-    """ given axial coordinate and direction returns all axial coordinates that predetor can see
-    """
-    axial_x , axial_y = axial_coordinate
-    initial_posx, initial_posy = axial_x , axial_y
-    a,b,c,d = 0,0,0,0
-    predVis = []
-    if (dir_vec == 1):
-        a=1
-        b=-1
-        c=-1
-        d=0
-    elif (dir_vec == 2):
-        a=1
-        b=0
-        c=0
-        d=-1
-    elif (dir_vec == 3):
-        a=0
-        b=1
-        c=1
-        d=-1
-    elif (dir_vec == 4):
-        a=-1
-        b=1
-        c=1
-        d=0
-    elif (dir_vec == 5):
-        a=-1
-        b=0
-        c=0
-        d=1
-    elif (dir_vec == 6):
-        a=0
-        b=-1
-        c=-1
-        d=1
-    for i in range(0,3):
-        for j in range(0,3):
-            check_x, check_y = (initial_posx + j*c), (initial_posy +j*d) #rightshift 
-            predVis.append((check_x,check_y))
-        initial_posx, initial_posy= initial_posx + a, initial_posy+ b  #leftshift
+# def axial_to_cube(axial_x, axial_y):
+#     cube_s = 0
+#     cube_q = axial_x
+#     cube_r = axial_y
+#     cube_s = - cube_q - cube_r
+#     return (cube_q, cube_r, cube_s)
+
+
+
+# def predator_vision(axial_coordinate, dir_vec):
+#     """ given axial coordinate and direction returns all axial coordinates that predetor can see
+#     """
+#     axial_x , axial_y = axial_coordinate
+#     initial_posx, initial_posy = axial_x , axial_y
+#     a,b,c,d = 0,0,0,0
+#     predVis = []
+#     if (dir_vec == 1):
+#         a=1
+#         b=-1
+#         c=-1
+#         d=0
+#     elif (dir_vec == 2):
+#         a=1
+#         b=0
+#         c=0
+#         d=-1
+#     elif (dir_vec == 3):
+#         a=0
+#         b=1
+#         c=1
+#         d=-1
+#     elif (dir_vec == 4):
+#         a=-1
+#         b=1
+#         c=1
+#         d=0
+#     elif (dir_vec == 5):
+#         a=-1
+#         b=0
+#         c=0
+#         d=1
+#     elif (dir_vec == 6):
+#         a=0
+#         b=-1
+#         c=-1
+#         d=1
+#     for i in range(0,3):
+#         for j in range(0,3):
+#             check_x, check_y = (initial_posx + j*c), (initial_posy +j*d) #rightshift 
+#             predVis.append((check_x,check_y))
+#         initial_posx, initial_posy= initial_posx + a, initial_posy+ b  #leftshift
         
-    return predVis
+#     return predVis
 
-print (predator_vision((0,0),1))
+# print (predator_vision((0,0),1))
+
+
+
+def prey_vision(axial):
+    """ given axial,radius
+        i.e if radius is 3 then loop gardai append gardai set nikalera firta dine
+    """
+    initial_posx, initial_posy = axial[0], axial[1]
+    preyvis = []
+    p1_x, p1_y = (initial_posx + 0),(initial_posy - 1)
+    p2_x, p2_y = (initial_posx + 1),(initial_posy - 1)
+    p3_x, p3_y = (initial_posx + 1 ),(initial_posy + 0)
+    p4_x, p4_y = (initial_posx + 0),(initial_posy + 1)
+    p5_x, p5_y = (initial_posx - 1),(initial_posy + 1)
+    p6_x, p6_y = (initial_posx - 1),(initial_posy + 0)
+    preyvis.append((p1_x,p1_y))
+    preyvis.append((p2_x,p2_y))
+    preyvis.append((p3_x,p3_y))
+    preyvis.append((p4_x,p4_y))
+    preyvis.append((p5_x,p5_y))
+    preyvis.append((p6_x,p6_y))
+    return preyvis
+
+
+total = []
+axial = (0,0)
+a = prey_vision(axial)
+for i in a:
+    total.append(prey_vision((i[0],i[1])))
+
+final = []
+for i in total:
+    for j in i:
+        final.append(j)
+
+print(final)
+print(set(final))
 

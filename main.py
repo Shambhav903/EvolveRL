@@ -285,7 +285,7 @@ def main():
     terminated = False
     # x = [i for i in range(10,20)]
     # y = [i for i in range(5,15)]
-    preyAgents,predatorAgents = initializeAgent(120,120)
+    preyAgents,predatorAgents = initializeAgent(150,150)
 
     while not terminated:
         for event in pygame.event.get():
