@@ -90,38 +90,42 @@
 
 
 
-def prey_vision(axial):
-    """ given axial,radius
-        i.e if radius is 3 then loop gardai append gardai set nikalera firta dine
-    """
-    initial_posx, initial_posy = axial[0], axial[1]
-    preyvis = []
-    p1_x, p1_y = (initial_posx + 0),(initial_posy - 1)
-    p2_x, p2_y = (initial_posx + 1),(initial_posy - 1)
-    p3_x, p3_y = (initial_posx + 1 ),(initial_posy + 0)
-    p4_x, p4_y = (initial_posx + 0),(initial_posy + 1)
-    p5_x, p5_y = (initial_posx - 1),(initial_posy + 1)
-    p6_x, p6_y = (initial_posx - 1),(initial_posy + 0)
-    preyvis.append((p1_x,p1_y))
-    preyvis.append((p2_x,p2_y))
-    preyvis.append((p3_x,p3_y))
-    preyvis.append((p4_x,p4_y))
-    preyvis.append((p5_x,p5_y))
-    preyvis.append((p6_x,p6_y))
-    return preyvis
+# def prey_vision(axial):
+#     """ given axial,radius
+#         i.e if radius is 3 then loop gardai append gardai set nikalera firta dine
+#     """
+#     initial_posx, initial_posy = axial[0], axial[1]
+#     preyvis = []
+#     p1_x, p1_y = (initial_posx + 0),(initial_posy - 1)
+#     p2_x, p2_y = (initial_posx + 1),(initial_posy - 1)
+#     p3_x, p3_y = (initial_posx + 1 ),(initial_posy + 0)
+#     p4_x, p4_y = (initial_posx + 0),(initial_posy + 1)
+#     p5_x, p5_y = (initial_posx - 1),(initial_posy + 1)
+#     p6_x, p6_y = (initial_posx - 1),(initial_posy + 0)
+#     preyvis.append((p1_x,p1_y))
+#     preyvis.append((p2_x,p2_y))
+#     preyvis.append((p3_x,p3_y))
+#     preyvis.append((p4_x,p4_y))
+#     preyvis.append((p5_x,p5_y))
+#     preyvis.append((p6_x,p6_y))
+#     return preyvis
 
 
-total = []
-axial = (0,0)
-a = prey_vision(axial)
-for i in a:
-    total.append(prey_vision((i[0],i[1])))
+# total = []
+# axial = (0,0)
+# a = prey_vision(axial)
+# for i in a:
+#     total.append(prey_vision((i[0],i[1])))
 
-final = []
-for i in total:
-    for j in i:
-        final.append(j)
+# final = []
+# for i in total:
+#     for j in i:
+#         final.append(j)
 
-print(final)
-print(set(final))
+# print(final)
+# print(set(final))
 
+
+import numpy as np
+Color = np.linspace(0,255,num = 101,dtype=np.int16)
+print(len(Color))
