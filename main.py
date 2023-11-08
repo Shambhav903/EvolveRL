@@ -7,14 +7,12 @@ import random
 import time
 import numpy as np
 
-
 honey_color = tuple([255,195,11])
 honey_color_border = tuple([181,101,29])
 col = tuple([137,207,240])
 rosso_corsa = tuple([212,0,0])
 light_red = tuple([215,95,86])
 green = tuple([0,86,63])
-
 
 SIZEOFGRID = (79,39)
 PREDATORCOLOR = tuple([255,0,0])
@@ -27,7 +25,6 @@ DELTA = 50
 # predator energy loss while moving
 GAMMA = 1
 
-
 # LIST OF LENGTH 79 * 39 = 3081
 
 """
@@ -39,37 +36,38 @@ list of agents(type)
 predatorAgents = []
 preyAgents = []
 
-
 def initializeAgent(noOfPredator,noOfPrey):
     """
     initializes agents and returns them
     prey agent = (x,y, actionCount, energy)
-    predator agent = (x,y, actionCount, energy, direction)
+    predator agent = (x,y, actionCount(as a tuple defined below), energy, direction)
+    actionCount = (-1,0) initially 
+    actionCount[1] = 1/2... implies the action needed to be taken after count reaches 0
+    # predator has 2 more possible actions 8,9 that orientation/pov of the predator agent
+    actionCount[0] = -1 implies new action can be allocated
+    actionCount[0] = 0 implies action has to be implemented now which is stored on actionCount[1] = 0/1/2...
+    actionCount[0] = n implies n steps/ticks needed for the action to be completed
     """
     predatorAgents = []
     preyAgents = []
     for agent in range(noOfPrey):
         temp = list_to_axial(random.randint(0,3081))
-        preyAgents.append([temp[0],temp[1],0,random.randint(0,100)])
+        preyAgents.append([temp[0],temp[1],(-1,1),random.randint(0,100)])
 
     for agent in range(noOfPredator):
         temp = list_to_axial(random.randint(0,3081))
-        predatorAgents.append([temp[0],temp[1],0,random.randint(80,100),random.randint(0,7)])
-        
+        predatorAgents.append([temp[0],temp[1],(-1,1),random.randint(80,100),random.randint(0,7)])
     return predatorAgents,preyAgents
 
 def renderAgents(preyAgents,predatorAgents,hexagon):
-    Color = list(np.linspace(0,101,num = 101,dtype=np.int16))
+    Color = list(np.linspace(0,120,num = 120,dtype=np.int16))
     Color.reverse()
     for prey in preyAgents:
         hexagon[axial_to_list((prey[0],prey[1]))].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
-        print('current coordinate',(prey[0],prey[1]))
-        print('rendering prey')
+
     for predator in predatorAgents:
         hexagon[axial_to_list((predator[0],predator[1]))].colour = tuple([255,Color[predator[3]],Color[predator[3]]])
-        print('current coordinate',(predator[0],predator[1]))
-        print('rendering predator')
-
+        
 def predatorBehaviourCheck(preyAgents,predatorAgents):
     """ if predator overlaps then prey is dead 
         if predator consumes prey then the energy of predator increases by 40
@@ -95,37 +93,51 @@ def predatorBehaviourCheck(preyAgents,predatorAgents):
                     predator[3] += DELTA
             if predator[3] >= 100:
                 x,y = direction_generator(predator[0],predator[1])
-                predatorAgents.append([x,y,0,int(predator[3]/2),predator[4]])
+                predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
                 predator[3] = int(predator[3]/2)
         
-    
-
-
 def randomMovement(preyAgents,predatorAgents,hexagon):
-    """ randomly moves predator and prey agents
+    """ randomly moves predator and prey agents if counter is == -1
     """
     for agentIndex,agent in enumerate(preyAgents):
-        x,y = direction_generator(agent[0],agent[1])
-        hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
-        # hexagon[axial_to_list((x,y))].colour = PREYCOLOR
-        newAgent = (x,y,agent[2],agent[3])
-        preyAgents[agentIndex] = newAgent
+        if agent[2][0] == -1:
+            # allocate action 
+            action = random.randint(1,7)
+            agent[2] = (24,action)
 
-        # print('current coordinate',axial_x,axial_y)
-        # print('new coordinate',x,y)
-    
+        elif agent[2][0] == 0:
+            # do action
+            # hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
+            agent[0],agent[1] = directionGeneratorv2(agent[0],agent[1],agent[2][1])
+            
+            # if staying in one place then energy increases by 15
+            if agent[2][1] == 7:
+                agent[3] += 15
+                if agent[3] >= 100:
+                    x,y = direction_generator(agent[0],agent[1])
+                    preyAgents.append([x,y,(-1,0),int(agent[3]/2)])
+                    agent[3] = int(agent[3]/2)
+            
+            agent[2] = (-1,1)
+            
+        else:
+            agent[2] = (agent[2][0]-1,agent[2][1])
+
     for agentIndex,agent in enumerate(predatorAgents):
-        x,y = direction_generator(agent[0],agent[1])
-        hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
-        # hexagon[axial_to_list((x,y))].colour = PREDATORCOLOR
-        newAgent = [x,y,agent[2],agent[3],agent[4]]
-        agent = newAgent
-        predatorAgents[agentIndex] = newAgent
-        # print('current coordinate',axial_x,axial_y)
-        # print('new coordinate',x,y)
+        if agent[2][0] == -1:
+            # allocate action
+            action = random.randint(1,7)
+            agent[2] = (1,action)
 
+        elif agent[2][0] == 0:
+            # do action
+            # hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
+            agent[0],agent[1] = directionGeneratorv2(agent[0],agent[1],agent[2][1])
+            # hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
+            agent[2] = (-1,1)
 
-
+        else:
+            agent[2] = (agent[2][0]-1,agent[2][1])
 
 def list_to_axial(index):
     """from list/index to axial coordinates
@@ -146,7 +158,7 @@ def axial_to_list(axial):
     index = index % (79*39-1)  
     return index
 
-
+"""
 #for test
 def ranpos (hexa = []):
     num  = random.randint(0,79*39-1)
@@ -161,8 +173,7 @@ def agent(x= 1,y= 1,hexa = []):
     x,y = list_to_axial(index)
     hexa[index].colour = rosso_corsa
     return 0    
-
-
+"""
 
 def create_hexagon(position, radius=10, flat_top=False) -> HexagonTile:
     """Creates a hexagon tile at the specified position"""
@@ -218,6 +229,34 @@ def render(screen, hexagons):
         
     pygame.display.flip()
 
+def directionGeneratorv2(currentX,currentY,action):
+    """given current x and y returns nexy x and y in random direction
+      """
+    dir = action
+    x = currentX
+    y = currentY
+    if (dir == 1):
+        x = x
+        y = y - 1
+    elif (dir == 2):
+        x=x+1
+        y=y-1
+    elif (dir == 3):
+        x=x+1
+        y=y
+    elif (dir == 4):
+        x=x
+        y=y+1
+    elif (dir == 5):
+        x=x-1
+        y=y+1
+    elif (dir == 6):
+        x=x-1
+        y=y
+    elif (dir==7):
+        x=x
+        y=y
+    return x,y
 
 def direction_generator(currentx,currenty):
     """given current x and y returns nexy x and y in random direction
@@ -292,21 +331,22 @@ def predator_vision(axialCoordinate, dir_vec):
         initial_posx, initial_posy= initial_posx + a, initial_posy+ b  #leftshift
         
     return predVis
+
 def prey_vision(axialCoordinate):
     pass
-
 
 def reset_env ():
     return 0
 
-        
+def clearGrid(hexagons):
+    for hexagon in hexagons:
+        hexagon.colour = honey_color
+         
 def coordinate_movement(axial_x, axial_y,hexa,color):
     """ given axial coordinates, moves the prosthetic agent """
     x,y = direction_generator(axial_x,axial_y)
     hexa[axial_to_list(axial_x,axial_y)].colour = honey_color
     hexa[axial_to_list(x,y)].colour = color
-    print('current coordinate',axial_x,axial_y)
-    print('new coordinate',x,y)
     return x,y
 
 def main():
@@ -317,7 +357,7 @@ def main():
     clock = pygame.time.Clock()
     hexagons = init_hexagons(flat_top=True)
     terminated = False
-    predatorAgents,preyAgents = initializeAgent(10,500)
+    predatorAgents,preyAgents = initializeAgent(500,500)
 
     while not terminated:
         for event in pygame.event.get():
@@ -329,14 +369,13 @@ def main():
         
         randomMovement(preyAgents,predatorAgents,hexagons)
         predatorBehaviourCheck(preyAgents,predatorAgents)
-        renderAgents(preyAgents,predatorAgents,hexagons)
 
+        clearGrid(hexagons)
+        renderAgents(preyAgents,predatorAgents,hexagons)
         render(screen, hexagons)
         
-        time.sleep(.05)
-        clock.tick(50)
+        clock.tick(5)
     pygame.display.quit()
-
 
 if __name__ == "__main__":
     main()
