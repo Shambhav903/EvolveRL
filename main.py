@@ -16,7 +16,10 @@ green = tuple([0,86,63])
 
 SIZEOFGRID = (79,39)
 PREDATORCOLOR = tuple([255,0,0])
+PREDATORVISIONCOLOR = tuple([50,74,178])
 PREYCOLOR = tuple([0,255,0])
+PREYVISIONCOLOR = tuple([64,224,208])
+
 
 # prey energy gain while staying
 ALPHA = 15
@@ -56,18 +59,28 @@ def initializeAgent(noOfPredator,noOfPrey):
 
     for agent in range(noOfPredator):
         temp = list_to_axial(random.randint(0,3081))
-        predatorAgents.append([temp[0],temp[1],(-1,1),random.randint(80,100),random.randint(0,7)])
+        predatorAgents.append([temp[0],temp[1],(-1,1),random.randint(80,100),random.randint(1,6)])
     return predatorAgents,preyAgents
 
 def renderAgents(preyAgents,predatorAgents,hexagon):
     Color = list(np.linspace(0,120,num = 120,dtype=np.int16))
     Color.reverse()
     for prey in preyAgents:
-        hexagon[axial_to_list((prey[0],prey[1]))].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
+        visionInAxial = prey_vision((prey[0],prey[1]),3)
+        for vision in visionInAxial:
+            hexagon[axial_to_list((vision[0],vision[1]))].colour = PREYVISIONCOLOR
+
+    for predator in predatorAgents:
+        visionInAxial = predator_vision((predator[0],predator[1]),predator[4])
+        # print(visionInAxial)
+        for vision in visionInAxial:
+            hexagon[axial_to_list((vision[0],vision[1]))].colour = PREDATORVISIONCOLOR
 
     for predator in predatorAgents:
         hexagon[axial_to_list((predator[0],predator[1]))].colour = tuple([255,Color[predator[3]],Color[predator[3]]])
-        
+    for prey in preyAgents:
+        hexagon[axial_to_list((prey[0],prey[1]))].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
+     
 def predatorBehaviourCheck(preyAgents,predatorAgents):
     """ if predator overlaps then prey is dead 
         if predator consumes prey then the energy of predator increases by 40
@@ -91,6 +104,7 @@ def predatorBehaviourCheck(preyAgents,predatorAgents):
                 if (predator[0],predator[1]) == (prey[0],prey[1]):
                     preyAgents.remove(prey)
                     predator[3] += DELTA
+                    break
             if predator[3] >= 100:
                 x,y = direction_generator(predator[0],predator[1])
                 predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
@@ -103,16 +117,15 @@ def randomMovement(preyAgents,predatorAgents,hexagon):
         if agent[2][0] == -1:
             # allocate action 
             action = random.randint(1,7)
-            agent[2] = (24,action)
+            agent[2] = (2,action)
 
         elif agent[2][0] == 0:
             # do action
-            # hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
             agent[0],agent[1] = directionGeneratorv2(agent[0],agent[1],agent[2][1])
             
             # if staying in one place then energy increases by 15
             if agent[2][1] == 7:
-                agent[3] += 15
+                agent[3] += 10
                 if agent[3] >= 100:
                     x,y = direction_generator(agent[0],agent[1])
                     preyAgents.append([x,y,(-1,0),int(agent[3]/2)])
@@ -126,14 +139,25 @@ def randomMovement(preyAgents,predatorAgents,hexagon):
     for agentIndex,agent in enumerate(predatorAgents):
         if agent[2][0] == -1:
             # allocate action
-            action = random.randint(1,7)
+            action = random.randint(1,9)
             agent[2] = (1,action)
+
 
         elif agent[2][0] == 0:
             # do action
-            # hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
-            agent[0],agent[1] = directionGeneratorv2(agent[0],agent[1],agent[2][1])
-            # hexagon[axial_to_list((agent[0],agent[1]))].colour = honey_color
+
+            if agent[2][1]<8:
+                agent[0],agent[1] = directionGeneratorv2(agent[0],agent[1],agent[2][1])
+            elif agent[2][1]== 8:
+                if (agent[4]-1) <1:
+                    agent[4] = 6
+                agent[4] = agent[4] -1
+            else:
+                if (agent[4]+1) >6:
+                    agent[4] = 1
+                agent[4] = agent[4] +1
+            
+            
             agent[2] = (-1,1)
 
         else:
@@ -332,8 +356,45 @@ def predator_vision(axialCoordinate, dir_vec):
         
     return predVis
 
-def prey_vision(axialCoordinate):
-    pass
+def list_neighbours(axial):
+    """ returns a list of neighbours of the initial axial point
+    """
+    initial_posx, initial_posy = axial[0], axial[1]
+    preyvis = []
+    p1_x, p1_y = (initial_posx + 0),(initial_posy - 1)
+    p2_x, p2_y = (initial_posx + 1),(initial_posy - 1)
+    p3_x, p3_y = (initial_posx + 1 ),(initial_posy + 0)
+    p4_x, p4_y = (initial_posx + 0),(initial_posy + 1)
+    p5_x, p5_y = (initial_posx - 1),(initial_posy + 1)
+    p6_x, p6_y = (initial_posx - 1),(initial_posy + 0)
+    preyvis.append((p1_x,p1_y))
+    preyvis.append((p2_x,p2_y))
+    preyvis.append((p3_x,p3_y))
+    preyvis.append((p4_x,p4_y))
+    preyvis.append((p5_x,p5_y))
+    preyvis.append((p6_x,p6_y))
+    return preyvis
+
+def prey_vision(axial,radius):
+    """ given axial, radius
+        i.e if radius is 3 then loop gardai append gardai set nikalera firta dine
+    """
+    nodes = {(axial[0],axial[1])}
+
+    for i in range(radius+1):
+        if i == 1:
+            neighbours = list_neighbours(axial)
+            for neighbour in neighbours:
+                nodes.add(neighbour)
+            
+        elif i>1:
+            for neighbour in neighbours:
+                temp_neighbours = list_neighbours(neighbour)
+                for temp_neighbour in temp_neighbours:
+                    nodes.add(temp_neighbour)
+            neighbours = list(nodes)
+        
+    return list(nodes)
 
 def reset_env ():
     return 0
@@ -357,24 +418,21 @@ def main():
     clock = pygame.time.Clock()
     hexagons = init_hexagons(flat_top=True)
     terminated = False
-    predatorAgents,preyAgents = initializeAgent(500,500)
+    predatorAgents,preyAgents = initializeAgent(5,5)
 
     while not terminated:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminated = True
-        # for hexagon in hexagons:
-        #     hexagon.update()
 
         
         randomMovement(preyAgents,predatorAgents,hexagons)
         predatorBehaviourCheck(preyAgents,predatorAgents)
-
         clearGrid(hexagons)
         renderAgents(preyAgents,predatorAgents,hexagons)
         render(screen, hexagons)
         
-        clock.tick(5)
+        clock.tick(50)
     pygame.display.quit()
 
 if __name__ == "__main__":
