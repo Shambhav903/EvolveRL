@@ -10,9 +10,11 @@ from gymnasium.spaces import Discrete, MultiDiscrete
 import pygame
 from pettingzoo import ParallelEnv
 
+NO_OF_PREY = 5
+NO_OF_PREDATOR = 5
+GRID_SIZE = (79,39)
 from helperDisplay import clearGrid, init_hexagons, initializeAgent, render, renderAgents
 from helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision
-
 
 class Hex_Env(ParallelEnv):
     """The metadata holds environment constants.
