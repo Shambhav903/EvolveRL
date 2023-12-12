@@ -20,13 +20,12 @@ PREDATORVISIONCOLOR = tuple([50,74,178])
 PREYCOLOR = tuple([0,255,0])
 PREYVISIONCOLOR = tuple([64,224,208])
 
-
 # prey energy gain while staying
-ALPHA = 15
+ALPHA = 15   # natural growth
 # predator energy gain while eating
-DELTA = 50
+DELTA = 50   # 
 # predator energy loss while moving
-GAMMA = 1
+GAMMA = 1 
 
 # LIST OF LENGTH 79 * 39 = 3081
 
@@ -179,7 +178,7 @@ def axial_to_list(axial):
     """axial to list/index 
     """
     index = axial[0] + (axial[1]+int(axial[0]/2))*79
-    index = index % (79*39-1)  
+    index = index % ((79*39))  
     return index
 
 """
@@ -403,14 +402,44 @@ def clearGrid(hexagons):
     for hexagon in hexagons:
         hexagon.colour = honey_color
          
-def coordinate_movement(axial_x, axial_y,hexa,color):
-    """ given axial coordinates, moves the prosthetic agent """
-    x,y = direction_generator(axial_x,axial_y)
-    hexa[axial_to_list(axial_x,axial_y)].colour = honey_color
-    hexa[axial_to_list(x,y)].colour = color
-    return x,y
+# def coordinate_movement(axial_x, axial_y,hexa,color):
+#     """ given axial coordinates, moves the prosthetic agent """
+#     x,y = direction_generator(axial_x,axial_y)
+#     hexa[axial_to_list(axial_x,axial_y)].colour = honey_color
+#     hexa[axial_to_list(x,y)].colour = color
+#     return x,y
+import keyboard
+def movepred(dir,predatorAgents):
+    # function of testing in keyboard
+    if dir == 1:
+            #go right
+        for predator in predatorAgents:
+            predator[1] -= 1
+    
+    elif dir == 2:
+        #go left
+        for predator in predatorAgents:
+            predator[0] +=1
+            predator[1] -=1
+    elif dir == 5:
+        #go left
+        for predator in predatorAgents:
+            predator[0] -=1
+            predator[1] +=1
+    elif dir == 4:
+        #go left
+        for predator in predatorAgents:
+            predator[1] +=1
+        
+
 
 def main():
+
+    # print(79*39-1)
+    # print(list_to_axial(79*39-1))
+    # print(list_to_axial(79*39-1-78))
+
+    # print(axial_to_list((78,-1)))
     """Main function"""
     a = 0
     pygame.init()
@@ -418,21 +447,40 @@ def main():
     clock = pygame.time.Clock()
     hexagons = init_hexagons(flat_top=True)
     terminated = False
-    predatorAgents,preyAgents = initializeAgent(5,5)
-
+    predatorAgents,preyAgents = initializeAgent(1,0)
+    
     while not terminated:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminated = True
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    movepred(1,predatorAgents)
+                if event.key == pygame.K_d:
+                    movepred(2,predatorAgents)
+                if event.key == pygame.K_a:
+                    movepred(5,predatorAgents)
+                if event.key == pygame.K_s:
+                    movepred(4,predatorAgents)
+                if event.key == pygame.K_i:
+                    for predator in predatorAgents:
+                        print(predator_vision((predator[0],predator[1]),predator[4]))
+                        print(axial_to_list((predator[0],predator[1])))
+                if event.key == pygame.K_f:
+                    for i in range(20):
+                        movepred(4,predatorAgents)
 
         
-        randomMovement(preyAgents,predatorAgents,hexagons)
-        predatorBehaviourCheck(preyAgents,predatorAgents)
+        # randomMovement(preyAgents,predatorAgents,hexagons)
+        # predatorBehaviourCheck(preyAgents,predatorAgeants)
         clearGrid(hexagons)
         renderAgents(preyAgents,predatorAgents,hexagons)
         render(screen, hexagons)
         
-        clock.tick(50)
+
+
+        clock.tick(8)
     pygame.display.quit()
 
 if __name__ == "__main__":
