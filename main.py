@@ -3,7 +3,7 @@ from typing import Tuple
 import pygame
 from hexagon import FlatTopHexagonTile
 from hexagon import HexagonTile
-import random 
+import random
 import time
 import numpy as np
 
