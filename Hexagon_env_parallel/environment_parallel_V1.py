@@ -1,4 +1,7 @@
 
+import sys
+sys.path.append('hexagon_env')
+
 import functools
 import random
 from copy import copy
@@ -6,6 +9,9 @@ import numpy as np
 from gymnasium.spaces import Discrete, MultiDiscrete
 
 from pettingzoo import ParallelEnv
+
+from helperDisplay import clearGrid, init_hexagons, initializeAgent, render, renderAgents
+from helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision
 
 
 class Hex_Env(ParallelEnv):
@@ -35,7 +41,9 @@ class Hex_Env(ParallelEnv):
 
     def step(self, actions):
         # Check termination conditions
-        terminations = {a: False for a in self.agents}
+        terminations = dict([(agent, False) for agent in self.possible_prey] + [(agent,False) for agent in self.possible_predator])
+        truncations = dict([(agent, False) for agent in self.possible_prey] + [(agent,False) for agent in self.possible_predator])
+        rewards = dict([(agent, 0) for agent in self.possible_prey] + [(agent,0) for agent in self.possible_predator])
         
         # Check truncation conditions (overwrites termination conditions)
         truncations = {a: False for a in self.agents}
@@ -47,7 +55,6 @@ class Hex_Env(ParallelEnv):
             for a in self.agents
         }
 
-        # Get dummy infos (not used in this example)
         infos = {a: {} for a in self.agents}
 
         if any(terminations.values()) or all(truncations.values()):
