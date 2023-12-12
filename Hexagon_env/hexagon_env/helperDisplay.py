@@ -27,6 +27,8 @@ ALPHA = 15   # natural growth
 DELTA = 50   # 
 # predator energy loss while moving
 GAMMA = 1 
+PREDATOR_REWARD = 20
+PREY_REWARD = 20
 
 # LIST OF LENGTH 79 * 39 = 3081
 
@@ -81,7 +83,7 @@ def renderAgents(preyAgents,predatorAgents,hexagon):
     for prey in preyAgents:
         hexagon[axial_to_list((prey[0],prey[1]))].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
      
-def predatorBehaviourCheck(preyAgents,predatorAgents):
+def predatorBehaviourCheck(preyAgents,predatorAgents,rewards,terminations):
     """ if predator overlaps then prey is dead 
         if predator consumes prey then the energy of predator increases by 40
         every tick the energy of predator decreases by 1
@@ -103,7 +105,9 @@ def predatorBehaviourCheck(preyAgents,predatorAgents):
             for prey in preyAgents:
                 if (predator[0],predator[1]) == (prey[0],prey[1]):
                     preyAgents.remove(prey)
+                    terminations[prey] == True
                     predator[3] += DELTA
+                    rewards[predator] = PREDATOR_REWARD
                     break
             if predator[3] >= 100:
                 x,y = direction_generator(predator[0],predator[1])
@@ -259,13 +263,6 @@ def preyDirectionGenerator(currentX,currentY,action):
     x = currentX
     y = currentY
 
-    # if (currentX % 79 == 0) and (action == 5 or action ==  6):
-    #     action == 7
-    #     return x,y
-    # elif (currentX % 78 == 0) and (action == 2 or action == 3):
-    #     action == 7
-    #     return x,y
-    
     if (action == 1):
         x = x
         y = y - 1

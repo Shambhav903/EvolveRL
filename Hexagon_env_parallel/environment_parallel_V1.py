@@ -1,6 +1,6 @@
 
-import sys
-sys.path.append('hexagon_env')
+# import sys
+# sys.path.append('hexagon_env')
 
 import functools
 import random
@@ -10,35 +10,33 @@ from gymnasium.spaces import Discrete, MultiDiscrete
 import pygame
 from pettingzoo import ParallelEnv
 
+
+from hexagon_env_parallel.helperDisplay import clearGrid, init_hexagons, initializeAgent, render, renderAgents
+from hexagon_env_parallel.helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision,direction_generator
+from hexagon_env_parallel.helperDisplay import predatorBehaviourCheck
+
 NO_OF_PREY = 5
 NO_OF_PREDATOR = 5
 GRID_SIZE = (79,39)
-from helperDisplay import clearGrid, init_hexagons, initializeAgent, render, renderAgents
-from helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision
+# prey energy gain while staying
+ALPHA = 15   # natural growth
+# predator energy gain while eating
+DELTA = 50   # 
+# predator energy loss while moving
+GAMMA = 1
+PREY_REWARD = 20
+
 
 class Hex_Env(ParallelEnv):
-    """The metadata holds environment constants.
-
-    The "name" metadata allows the environment to be pretty printed.
-    """
 
     metadata = {
         "name": "hex_env_parallel_v0",
     }
 
     def __init__(self, render_mode=None):
-        """
-        The init method takes in environment arguments and
-         should define the following attributes:
-        - possible_agents
-        - render_mode
 
-        Note: as of v1.18.1, the action_spaces and observation_spaces attributes are deprecated.
-        Spaces should be defined in the action_space() and observation_space() methods.
-        If these methods are not overridden, spaces will be inferred from self.observation_spaces/action_spaces, raising a warning.
-
-        These attributes should not be changed after initialization.
-        """
+        
+        
         self.possible_prey = ["prey_" + str(r) for r in range(NO_OF_PREY)]
         self.possible_predator = ["predator_" + str(r) for r in range(NO_OF_PREDATOR)]
         self.possible_agents = self.possible_prey.copy() + self.possible_predator.copy()
@@ -64,9 +62,6 @@ class Hex_Env(ParallelEnv):
             self.world = pygame.display.set_mode((1200, 700))
             self.hexagons = init_hexagons(flat_top=True)
             self.clock.tick(70)
-            # clearGrid(self.hexagons)
-            # renderAgents(self.preyAgents,self.predatorAgents,self.hexagons)
-            # render(self.world, self.hexagons)
 
 
     def reset(self, seed=None, options=None):
@@ -90,14 +85,14 @@ class Hex_Env(ParallelEnv):
         self.truncations = {agent: False for agent in self.agents}
         self.infos = {agent: {} for agent in self.agents}
         self.state = {agent: None for agent in self.agents}
-        # self.observations = {agent: [0]*36 for agent in self.agents}
+
         self.observations = dict([(agent,[0]*36)  for agent in self.prey_agents]+[(agent,[0]*15)  for agent in self.predator_agents])
         self.num_moves = 0
         self.prey_agents = self.possible_prey.copy()
         self.predator_agents = self.possible_predator.copy()
 
-        # Get dummy infos. Necessary for proper parallel_to_aec conversion
         return self.observations, self.infos
+    
 
     def step(self, actions):
         # Check termination conditions
@@ -107,9 +102,36 @@ class Hex_Env(ParallelEnv):
         
         # Check truncation conditions (overwrites termination conditions)
         truncations = {a: False for a in self.agents}
-        self.timestep += 1
+        
+        # to take actions for all agents
+        for i in actions.keys():
+            if i[3] == 'd':    # implies that i is predator
+                index = self.predator_agents.index(i)
+                x,y,dir =predatorDirectionGenerator(self.predatorAgents[index][0],self.predatorAgents[index][1],self.predatorAgents[index][4],actions[i])
+                self.predatorAgents[index][0] = x
+                self.predatorAgents[index][1] = y           
+                self.predatorAgents[index][4] = dir
+            else:
+                index = self.prey_agents.index(i)
+                # if stayed at same place increase energy
+                if actions[i] == 7 :
+                    self.prey_agents[index][3] += 15
+                    self.rewards[i] = PREY_REWARD
+                else:
+                    # elif moved from a place then move to that place
+                    x,y = preyDirectionGenerator(self.preyAgents[index][0],self.preyAgents[index][1],actions[i])
+                    self.preyAgents[index][0] = x
+                    self.preyAgents[index][1] = y
+                
+        # check behaviour after actions have been taken
+        # change energy level for predator 
+        predatorBehaviourCheck(self.predator_agents,self.predator_agents,self.rewards,self.terminations)
+        # change energy level for prey if completed the stay at a place
 
+        self.timestep += 1
+        
         # Get observations
+
         # Set up observations
         observations = {
             a: 0

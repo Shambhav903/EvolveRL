@@ -1,8 +1,8 @@
 from typing import List
 from typing import Tuple
 import pygame
-from hexagon import FlatTopHexagonTile
-from hexagon import HexagonTile
+from hexagon_env_parallel.hexagon import FlatTopHexagonTile
+from hexagon_env_parallel.hexagon import HexagonTile
 import random 
 import time
 import numpy as np
@@ -338,10 +338,10 @@ def predatorDirectionGenerator(currentX,currentY,dir,action):
     x,y = list_to_axial(axial_to_list((x,y)))
     return x,y,dir
 
-def direction_generator(currentx,currenty):
+def direction_generator(currentx,currenty,action):
     """given current x and y returns nexy x and y in random direction
       """
-    dir = random.randint(1,7)
+    dir = action
     x = currentx
     y = currenty
     if (dir == 1):
