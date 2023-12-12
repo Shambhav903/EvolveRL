@@ -95,7 +95,7 @@ class Hex_Env(ParallelEnv):
         self.predator_agents = self.possible_predator.copy()
 
         # Get dummy infos. Necessary for proper parallel_to_aec conversion
-        return observations, infos
+        return self.observations, self.infos
 
     def step(self, actions):
         # Check termination conditions
@@ -108,6 +108,7 @@ class Hex_Env(ParallelEnv):
         self.timestep += 1
 
         # Get observations
+        # Set up observations
         observations = {
             a: 0
             for a in self.agents
@@ -115,7 +116,7 @@ class Hex_Env(ParallelEnv):
 
         infos = {a: {} for a in self.agents}
 
-        if any(terminations.values()) or all(truncations.values()):
+        if all(terminations.values()) or all(truncations.values()):
             self.agents = []
 
         return observations, rewards, terminations, truncations, infos
