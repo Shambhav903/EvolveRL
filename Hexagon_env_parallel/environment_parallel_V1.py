@@ -22,15 +22,33 @@ class Hex_Env(ParallelEnv):
 
         pass
     def reset(self, seed=None, options=None):
- 
-        observations = {
-            a: 0
-            for a in self.agents
-        }
+        """
+        Reset needs to initialize the following attributes
+        - agents
+        - rewards
+        - _cumulative_rewards
+        - terminations
+        - truncations
+        - infos
+        - agent_selection
+        And must set up the environment so that render(), step(), and observe()
+        can be called without issues.
+        Here it sets up the state dictionary which is used by step() and the observations dictionary which is used by step() and observe()
+        """
+        self.agents = self.possible_agents[:]
+        self.rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {agent: 0 for agent in self.agents}
+        self.terminations = {agent: False for agent in self.agents}
+        self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: {} for agent in self.agents}
+        self.state = {agent: None for agent in self.agents}
+        # self.observations = {agent: [0]*36 for agent in self.agents}
+        self.observations = dict([(agent,[0]*36)  for agent in self.prey_agents]+[(agent,[0]*15)  for agent in self.predator_agents])
+        self.num_moves = 0
+        self.prey_agents = self.possible_prey.copy()
+        self.predator_agents = self.possible_predator.copy()
 
         # Get dummy infos. Necessary for proper parallel_to_aec conversion
-        infos = {a: {} for a in self.agents}
-
         return observations, infos
 
     def step(self, actions):
