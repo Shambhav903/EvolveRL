@@ -1,4 +1,7 @@
 
+import sys
+sys.path.append('hexagon_env')
+
 import functools
 import random
 from copy import copy
@@ -10,6 +13,8 @@ from pettingzoo import ParallelEnv
 NO_OF_PREY = 5
 NO_OF_PREDATOR = 5
 GRID_SIZE = (79,39)
+from helperDisplay import clearGrid, init_hexagons, initializeAgent, render, renderAgents
+from helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision
 
 class Hex_Env(ParallelEnv):
     """The metadata holds environment constants.
@@ -65,20 +70,40 @@ class Hex_Env(ParallelEnv):
 
 
     def reset(self, seed=None, options=None):
- 
-        observations = {
-            a: 0
-            for a in self.agents
-        }
+        """
+        Reset needs to initialize the following attributes
+        - agents
+        - rewards
+        - _cumulative_rewards
+        - terminations
+        - truncations
+        - infos
+        - agent_selection
+        And must set up the environment so that render(), step(), and observe()
+        can be called without issues.
+        Here it sets up the state dictionary which is used by step() and the observations dictionary which is used by step() and observe()
+        """
+        self.agents = self.possible_agents[:]
+        self.rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {agent: 0 for agent in self.agents}
+        self.terminations = {agent: False for agent in self.agents}
+        self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: {} for agent in self.agents}
+        self.state = {agent: None for agent in self.agents}
+        # self.observations = {agent: [0]*36 for agent in self.agents}
+        self.observations = dict([(agent,[0]*36)  for agent in self.prey_agents]+[(agent,[0]*15)  for agent in self.predator_agents])
+        self.num_moves = 0
+        self.prey_agents = self.possible_prey.copy()
+        self.predator_agents = self.possible_predator.copy()
 
         # Get dummy infos. Necessary for proper parallel_to_aec conversion
-        infos = {a: {} for a in self.agents}
-
         return observations, infos
 
     def step(self, actions):
         # Check termination conditions
-        terminations = {a: False for a in self.agents}
+        terminations = dict([(agent, False) for agent in self.possible_prey] + [(agent,False) for agent in self.possible_predator])
+        truncations = dict([(agent, False) for agent in self.possible_prey] + [(agent,False) for agent in self.possible_predator])
+        rewards = dict([(agent, 0) for agent in self.possible_prey] + [(agent,0) for agent in self.possible_predator])
         
         # Check truncation conditions (overwrites termination conditions)
         truncations = {a: False for a in self.agents}
@@ -90,7 +115,6 @@ class Hex_Env(ParallelEnv):
             for a in self.agents
         }
 
-        # Get dummy infos (not used in this example)
         infos = {a: {} for a in self.agents}
 
         if any(terminations.values()) or all(truncations.values()):
