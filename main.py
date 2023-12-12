@@ -16,9 +16,9 @@ green = tuple([0,86,63])
 
 SIZEOFGRID = (79,39)
 PREDATORCOLOR = tuple([255,0,0])
-PREDATORVISIONCOLOR = tuple([50,74,178])
+PREDATORVISIONCOLOR = tuple([224,165,38])
 PREYCOLOR = tuple([0,255,0])
-PREYVISIONCOLOR = tuple([64,224,208])
+PREYVISIONCOLOR = tuple([236,230,61])
 
 # prey energy gain while staying
 ALPHA = 15   # natural growth
@@ -106,8 +106,8 @@ def predatorBehaviourCheck(preyAgents,predatorAgents):
                     break
             if predator[3] >= 100:
                 x,y = direction_generator(predator[0],predator[1])
-                predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
-                predator[3] = int(predator[3]/2)
+                predatorAgents.append([x,y,(-1,0),int(predator[3]/1.5),predator[4]])
+                predator[3] = int(predator[3]/1.5)
         
 def randomMovement(preyAgents,predatorAgents,hexagon):
     """ randomly moves predator and prey agents if counter is == -1
