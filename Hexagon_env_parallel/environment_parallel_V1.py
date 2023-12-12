@@ -128,11 +128,18 @@ class Hex_Env(ParallelEnv):
     # If your spaces change over time, remove this line (disable caching).
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
-        # gymnasium spaces are defined and documented here: https://gymnasium.farama.org/api/spaces/
-        return MultiDiscrete([7 * 7] * 3)
+        for agent in self.agents:
+            if (agent[3] == 'd'):
+                return Discrete(15)
+            else:
+                return Discrete(36)
 
     # Action space should be defined here.
     # If your spaces change over time, remove this line (disable caching).
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        return Discrete(4)
+        for agent in self.agents:
+            if (agent[3] =='d'):
+                return Discrete(9)
+            else:
+                return Discrete(7)
