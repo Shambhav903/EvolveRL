@@ -96,13 +96,23 @@ class Hex_Env(ParallelEnv):
         return observations, rewards, terminations, truncations, infos
 
     def render(self):
-        """Renders the environment."""
-        grid = np.full((7, 7), " ")
-        grid[self.prisoner_y, self.prisoner_x] = "P"
-        grid[self.guard_y, self.guard_x] = "G"
-        grid[self.escape_y, self.escape_x] = "E"
-        print(f"{grid} \n")
+        """
+        Renders the environment. In human mode, it can print to terminal, open
+        up a graphical window, or open up some other display that a human can see and understand.
+        """
+        if self.render_mode is None:
+            print('no agent specified')
+            return
+        
+        if len(self.prey_agents) > 0 and len(self.predator_agents) > 0:
+            clearGrid(self.hexagons)
+            renderAgents(self.preyAgents,self.predatorAgents,self.hexagons)
+            render(self.world, self.hexagons)
 
+        else:
+            string = "Game over"
+            print(string)
+            self.close()
 
     def observe(self, agent):
         """
