@@ -63,52 +63,36 @@ def initializeAgent(noOfPredator,noOfPrey):
     return predatorAgents,preyAgents
 
 def renderAgents(preyAgents,predatorAgents,hexagon):
+    
     Color = list(np.linspace(0,120,num = 120,dtype=np.int16))
     Color.reverse()
+    
+    
+
     for prey in preyAgents:
         visionInAxial = prey_vision((prey[0],prey[1]),3)
+
         for vision in visionInAxial:
             hexagon[axial_to_list((vision[0],vision[1]))].colour = PREYVISIONCOLOR
 
     for predator in predatorAgents:
         visionInAxial = predator_vision((predator[0],predator[1]),predator[4])
-        print(visionInAxial)
+
         for vision in visionInAxial:
             hexagon[axial_to_list((vision[0],vision[1]))].colour = PREDATORVISIONCOLOR
 
     for predator in predatorAgents:
         hexagon[axial_to_list((predator[0],predator[1]))].colour = tuple([255,Color[predator[3]],Color[predator[3]]])
     for prey in preyAgents:
-        hexagon[axial_to_list((prey[0],prey[1]))].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
+        coord = axial_to_list((prey[0],prey[1]))
+        # print(coord)
+        # print(len(hexagon))
+        # print(type(hexagon))
+        print(hexagon)
+        hexagon[coord].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
+    
      
-def predatorBehaviourCheck(preyAgents,predatorAgents):
-    """ if predator overlaps then prey is dead 
-        if predator consumes prey then the energy of predator increases by 40
-        every tick the energy of predator decreases by 1
-        * for action if action taken by prey is to not move, then energy increases by 20
-        * if predator or prey energy > 100 then divides and energy also divides,new offspring is born on a neighbouring hex
-        * 
-    """
-    # if overlap dead
-    # decreases predator energy by gamma on each tick (-1)
-    # consuming increases energy by Delta             (+50)
-    # if energy of predator in > 100 then multiply predator and divide energy
-    # prey ko energy badhaune if stay action completed ( yo arko action wala function ma helne)
-    # prey multiply garne if energy > 100 ( this too handled by action function)
-    for predator in predatorAgents:
-        predator[3] -= GAMMA
-        if predator[3] <= 0:
-            predatorAgents.remove(predator)
-        else:
-            for prey in preyAgents:
-                if (predator[0],predator[1]) == (prey[0],prey[1]):
-                    preyAgents.remove(prey)
-                    predator[3] += DELTA
-                    break
-            if predator[3] >= 100:
-                x,y = direction_generator(predator[0],predator[1])
-                predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
-                predator[3] = int(predator[3]/2)
+
         
 def randomMovement(preyAgents,predatorAgents,hexagon):
     """ randomly moves predator and prey agents if counter is == -1

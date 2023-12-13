@@ -1,7 +1,3 @@
-
-# import sys
-# sys.path.append('hexagon_env')
-
 import functools
 import random
 from copy import copy
