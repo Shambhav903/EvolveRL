@@ -62,34 +62,7 @@ def initializeAgent(noOfPredator,noOfPrey):
         predatorAgents.append([temp[0],temp[1],(-1,1),random.randint(80,100),random.randint(1,6)])
     return predatorAgents,preyAgents
 
-def renderAgents(preyAgents,predatorAgents,hexagon):
-    
-    Color = list(np.linspace(0,120,num = 120,dtype=np.int16))
-    Color.reverse()
-    
-    
 
-    for prey in preyAgents:
-        visionInAxial = prey_vision((prey[0],prey[1]),3)
-
-        for vision in visionInAxial:
-            hexagon[axial_to_list((vision[0],vision[1]))].colour = PREYVISIONCOLOR
-
-    for predator in predatorAgents:
-        visionInAxial = predator_vision((predator[0],predator[1]),predator[4])
-
-        for vision in visionInAxial:
-            hexagon[axial_to_list((vision[0],vision[1]))].colour = PREDATORVISIONCOLOR
-
-    for predator in predatorAgents:
-        hexagon[axial_to_list((predator[0],predator[1]))].colour = tuple([255,Color[predator[3]],Color[predator[3]]])
-    for prey in preyAgents:
-        coord = axial_to_list((prey[0],prey[1]))
-        # print(coord)
-        # print(len(hexagon))
-        # print(type(hexagon))
-        print(hexagon)
-        hexagon[coord].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
     
      
 
@@ -164,7 +137,7 @@ def axial_to_list(axial):
     """
     index = axial[0] + (axial[1]+int(axial[0]/2))*79
     index = index % ((79*39))  
-    return index
+    return int(index)
 
 """
 #for test

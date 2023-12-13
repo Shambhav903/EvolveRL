@@ -7,11 +7,11 @@ import pygame
 from pettingzoo import ParallelEnv
 
 
-from hexagon_env_parallel.helperDisplay import clearGrid, init_hexagons, initializeAgent, render, renderAgents
-from hexagon_env_parallel.helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision,direction_generator
+from hexagon_env_parallel.helperDisplay import clearGrid, init_hexagons, initializeAgent, render
+from hexagon_env_parallel.helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision,direction_generator,axial_to_list,list_to_axial
 
-NO_OF_PREY = 5
-NO_OF_PREDATOR = 5
+NO_OF_PREY = 2
+NO_OF_PREDATOR = 2
 GRID_SIZE = (79,39)
 # prey energy gain while staying
 ALPHA = 15   # natural growth
@@ -21,6 +21,11 @@ DELTA = 50   #
 GAMMA = 1
 PREY_REWARD = 20
 PREDATOR_REWARD = 20
+
+PREDATORCOLOR = tuple([255,0,0])
+PREDATORVISIONCOLOR = tuple([50,74,178])
+PREYCOLOR = tuple([0,255,0])
+PREYVISIONCOLOR = tuple([64,224,208])
 
 class Hex_Env(ParallelEnv):
 
@@ -80,6 +85,8 @@ class Hex_Env(ParallelEnv):
         self.prey_agents = self.possible_prey.copy()
         self.predator_agents = self.possible_predator.copy()
 
+        self.test = True
+
         return self.observations, self.infos
     
     def predatorBehaviourCheck(self):
@@ -113,13 +120,17 @@ class Hex_Env(ParallelEnv):
                 if predator[3] >= 100:
                     self.predatorSpawn(predator)  #spawns a new predator beside current predator
                     
-    
+    def preyBehaviourCheck(self):
+        for prey in self.preyAgents:
+            if prey[3]>100:
+                self.preySpawn(prey)
+
     def predatorSpawn(self,predator):
         self.new_predators+=1
-        predator[3] = int(predator[3]/2)
         x,y = direction_generator(predator[0],predator[1],random.randint(1,6))
         self.predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
         self.predator_agents.append("predator_"+str(999-self.new_predators))
+        predator[3] = int(predator[3]/2)
 
     def predatorDeath(self,predator):
         """
@@ -131,24 +142,50 @@ class Hex_Env(ParallelEnv):
         index_predator = self.predatorAgents.index(predator)
         agent_predator = self.predator_agents[index_predator]
         self.predator_agents.pop(index_predator)
-        self.predatorAgents.remove(predator)
+        self.predatorAgents.pop(index_predator)
         self.agents.remove(agent_predator)
         
     def preyDeath(self,prey):
         self.dead_preys += 1
         index_prey = self.preyAgents.index(prey)
         agent_prey = self.prey_agents[index_prey]
-        self.preyAgents.remove(agent_prey)
+        self.preyAgents.remove(prey)
         self.terminations[agent_prey] == True
     
     def preySpawn(self,prey):
-        self.dead_preys += 1
-        index_prey = self.preyAgents.index(prey)
-        agent_prey = self.prey_agents[index_prey]
+        self.new_prey += 1
+        x,y = direction_generator(prey[0],prey[1],random.randint(1,6))
+        self.preyAgents.append([x,y,prey[2],int(prey[3]/2)])
+        self.prey_agents.append("prey_"+str(999-self.new_predators))
+        prey[3] = int(prey[3]/2)
 
-        self.preyAgents.remove(prey)
-        self.terminations[agent_prey] == True
-        pass
+    def renderAgents(self):
+        Color = list(np.linspace(0,200,num = 120,dtype=np.int16))
+        Color.reverse()
+        hexagons = self.hexagons.copy()
+        
+        for prey in self.preyAgents:
+            visionInAxial = prey_vision((prey[0],prey[1]),3)
+
+            for vision in visionInAxial:
+                hexagons[axial_to_list((vision[0],vision[1]))].colour = PREYVISIONCOLOR
+
+        for predator in self.predatorAgents:
+            visionInAxial = predator_vision((predator[0],predator[1]),predator[4])
+
+            for vision in visionInAxial:
+                hexagons[axial_to_list((vision[0],vision[1]))].colour = PREDATORVISIONCOLOR
+
+        for predator in self.predatorAgents:
+            predatorIndex = axial_to_list((predator[0],predator[1]))
+            hexagons[predatorIndex].colour = tuple([255,Color[predator[3]],Color[predator[3]]])
+        for prey in self.preyAgents:
+            preyIndex = axial_to_list((prey[0],prey[1]))
+            print(prey[3])
+            hexagons[preyIndex].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
+
+
+    
 
     def step(self, actions):
         # Check termination conditions
@@ -182,6 +219,7 @@ class Hex_Env(ParallelEnv):
         # check behaviour after actions have been taken
         # change energy level for predator 
         self.predatorBehaviourCheck()
+        self.preyBehaviourCheck()
         # change energy level for prey if completed the stay at a place
 
         self.timestep += 1
@@ -204,17 +242,19 @@ class Hex_Env(ParallelEnv):
     def render(self):
         if self.render_mode is None:
             print('no agent specified')
-            return
+            return False
         
         if len(self.prey_agents) > 0 and len(self.predator_agents) > 0:
             clearGrid(self.hexagons)
-            renderAgents(self.preyAgents,self.predatorAgents,self.hexagons)
+            self.renderAgents()
             render(self.world, self.hexagons)
+            return(False)
 
         else:
             string = "Game over"
             print(string)
             self.close()
+            return True
 
     def observe(self, agent):
         return np.array(self.observations[agent])
