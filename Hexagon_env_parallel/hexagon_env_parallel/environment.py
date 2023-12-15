@@ -124,9 +124,12 @@ class Hex_Env(ParallelEnv):
         self.new_predators+=1
         x,y = direction_generator(predator[0],predator[1],random.randint(1,6))
         self.predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
-        self.predator_agents.append("predator_"+str(999-self.new_predators))
-        self.agents.append("predator_"+str(999-self.new_predators))
+        name = "predator_"+str(999-self.new_predators)
+        self.predator_agents.append(name)
+        self.agents.append(name)
         predator[3] = int(predator[3]/2)
+        self.terminations[name] = False
+        self.truncations[name] = False
 
     def predatorDeath(self,predator):
         """
@@ -152,8 +155,13 @@ class Hex_Env(ParallelEnv):
         self.new_prey += 1
         x,y = direction_generator(prey[0],prey[1],random.randint(1,6))
         self.preyAgents.append([x,y,prey[2],int(prey[3]/2)])
-        self.prey_agents.append("prey_"+str(999-self.new_predators))
-        self.agents.append("prey_"+str(999-self.new_predators))
+        prey[3] = prey[3]/2
+        name = "prey_"+str(999-self.new_predators)
+        self.prey_agents.append(name)
+        self.agents.append(name)
+        self.terminations[name] = False
+        self.truncations[name] = False
+        
         prey[3] = int(prey[3]/2)
 
     def renderAgents(self):
