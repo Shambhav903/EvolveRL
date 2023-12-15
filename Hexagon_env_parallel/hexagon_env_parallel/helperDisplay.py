@@ -139,22 +139,6 @@ def axial_to_list(axial):
     index = index % ((79*39))  
     return int(index)
 
-"""
-#for test
-def ranpos (hexa = []):
-    num  = random.randint(0,79*39-1)
-    hexa[num].colour = rosso_corsa
-    return 0 
-def prey (hexa = []):
-    num  = random.randint(0,79*39-1)
-    hexa[num].colour = green
-    return 0 
-def agent(x= 1,y= 1,hexa = []):
-    index = x*1 +y*79
-    x,y = list_to_axial(index)
-    hexa[index].colour = rosso_corsa
-    return 0    
-"""
 
 def create_hexagon(position, radius=10, flat_top=False) -> HexagonTile:
     """Creates a hexagon tile at the specified position"""

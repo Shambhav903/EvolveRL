@@ -6,7 +6,6 @@ from gymnasium.spaces import Discrete, MultiDiscrete
 import pygame
 from pettingzoo import ParallelEnv
 
-
 from hexagon_env_parallel.helperDisplay import clearGrid, init_hexagons, initializeAgent, render
 from hexagon_env_parallel.helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision,direction_generator,axial_to_list,list_to_axial
 
@@ -35,8 +34,6 @@ class Hex_Env(ParallelEnv):
 
     def __init__(self, render_mode=None):
 
-        
-        
         self.possible_prey = ["prey_" + str(r) for r in range(NO_OF_PREY)]
         self.possible_predator = ["predator_" + str(r) for r in range(NO_OF_PREDATOR)]
         self.possible_agents = self.possible_prey.copy() + self.possible_predator.copy()
@@ -53,8 +50,7 @@ class Hex_Env(ParallelEnv):
 
         self.dead_predators = 0
         self.dead_preys = 0
-        self.timestep = 0
-        
+        self.timestep = 0        
 
         # optional: we can define the observation and action spaces here as attributes to be used in their corresponding methods
         self._action_spaces = dict([(agent, Discrete(7)) for agent in self.possible_prey] + [(agent,Discrete(9)) for agent in self.possible_predator])
