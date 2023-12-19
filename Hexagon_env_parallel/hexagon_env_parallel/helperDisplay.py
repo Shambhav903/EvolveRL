@@ -184,7 +184,7 @@ def render(screen, hexagons):
     mouse_pos = pygame.mouse.get_pos()
     colliding_hexagons = [
         hexagon for hexagon in hexagons if hexagon.collide_with_point(mouse_pos)
-    ]
+    ] 
     for hexagon in hexagons:
         hexagon.render_highlight(screen, border_colour=honey_color_border)
     for hexagon in colliding_hexagons:
@@ -199,14 +199,6 @@ def preyDirectionGenerator(currentX,currentY,action):
       """
     x = currentX
     y = currentY
-
-    # if (currentX % 79 == 0) and (action == 5 or action ==  6):
-    #     action == 7
-    #     return x,y
-    # elif (currentX % 78 == 0) and (action == 2 or action == 3):
-    #     action == 7
-    #     return x,y
-    
     if (action == 1):
         x = x
         y = y - 1
