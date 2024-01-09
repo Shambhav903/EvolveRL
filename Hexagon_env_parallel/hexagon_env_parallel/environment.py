@@ -13,13 +13,13 @@ NO_OF_PREY = 50
 NO_OF_PREDATOR = 30
 GRID_SIZE = (79,39)
 # prey energy gain while staying
-ALPHA = 4   # natural growth
+ALPHA = 10   # natural growth
  
 # predator energy gain while eating
-DELTA = 20   # 
+DELTA = 35   # 
 
 # predator energy loss while moving
-GAMMA = .2
+GAMMA = .65
 
 PREY_REWARD = 20
 PREDATOR_REWARD = 20
@@ -254,6 +254,19 @@ class Hex_Env(ParallelEnv):
             self.agents = []
 
         return observations, rewards, terminations, truncations, infos
+    
+    def checkForPrey(self,agent):
+        idx = self.predator_agents.index(agent)
+        agentdata = self.predatorAgents[idx]
+        observations = predator_vision((agentdata[0],agentdata[1]),agentdata[4])
+        for prey in self.preyAgents:
+            for num,observation in enumerate(observations):
+                if (observation[0] == prey[0]) and (observation[1] == prey[1]):
+                    print("prey in range of predator")
+                    # if num
+                    return agentdata[4]
+
+        return 0
 
     def render(self):
         if self.render_mode is None:
