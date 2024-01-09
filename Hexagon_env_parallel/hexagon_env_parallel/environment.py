@@ -238,8 +238,14 @@ class Hex_Env(ParallelEnv):
 
         # Set up observations
         observations = {
-            a: 0
-            for a in self.agents
+            # we need to return an array of 0,1 's that indicates the presence of predator and prey 
+            # for a in self.predator_agents:
+            #     preda
+            #     a: [if(i.[1]==) for i in self.predatorAgents]
+
+            a:0 for a in self.agents
+                
+            
         }
 
         infos = {a: {} for a in self.agents}

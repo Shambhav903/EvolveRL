@@ -408,8 +408,30 @@ def clearGrid(hexagons):
 #     hexa[axial_to_list(axial_x,axial_y)].colour = honey_color
 #     hexa[axial_to_list(x,y)].colour = color
 #     return x,y
-import keyboard
+# import keyboard
 def movepred(dir,predatorAgents):
+    # function of testing in keyboard
+    if dir == 1:
+            #go right
+        for predator in predatorAgents:
+            predator[1] -= 1
+    
+    elif dir == 2:
+        #go left
+        for predator in predatorAgents:
+            predator[0] +=1
+            predator[1] -=1
+    elif dir == 5:
+        #go left
+        for predator in predatorAgents:
+            predator[0] -=1
+            predator[1] +=1
+    elif dir == 4:
+        #go left
+        for predator in predatorAgents:
+            predator[1] +=1
+
+def moveprey(dir,predatorAgents):
     # function of testing in keyboard
     if dir == 1:
             #go right
@@ -447,7 +469,7 @@ def main():
     clock = pygame.time.Clock()
     hexagons = init_hexagons(flat_top=True)
     terminated = False
-    predatorAgents,preyAgents = initializeAgent(1,0)
+    predatorAgents,preyAgents = initializeAgent(1,1)
     
     while not terminated:
         for event in pygame.event.get():
@@ -463,13 +485,22 @@ def main():
                     movepred(5,predatorAgents)
                 if event.key == pygame.K_s:
                     movepred(4,predatorAgents)
-                if event.key == pygame.K_i:
+                if event.key == pygame.K_u:
                     for predator in predatorAgents:
                         print(predator_vision((predator[0],predator[1]),predator[4]))
                         print(axial_to_list((predator[0],predator[1])))
+
+                if event.key == pygame.K_i:
+                    movepred(1,preyAgents)
+                if event.key == pygame.K_l:
+                    movepred(2,preyAgents)
+                if event.key == pygame.K_j:
+                    movepred(5,preyAgents)
+                if event.key == pygame.K_k:
+                    movepred(4,preyAgents)
                 if event.key == pygame.K_f:
                     for i in range(20):
-                        movepred(4,predatorAgents)
+                        movepred(4,preyAgents)
 
         
         # randomMovement(preyAgents,predatorAgents,hexagons)
