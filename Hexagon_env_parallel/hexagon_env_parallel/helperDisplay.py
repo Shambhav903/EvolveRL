@@ -22,11 +22,11 @@ PREYVISIONCOLOR = tuple([64,224,208])
 
 
 # prey energy gain while staying
-ALPHA = 15   # natural growth
+ALPHA = 8   # natural growth
 # predator energy gain while eating
-DELTA = 50   # 
+DELTA = 30   # 
 # predator energy loss while moving
-GAMMA = 1 
+GAMMA =.5
 
 # LIST OF LENGTH 79 * 39 = 3081
 

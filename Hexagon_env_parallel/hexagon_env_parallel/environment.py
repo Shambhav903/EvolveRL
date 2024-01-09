@@ -9,15 +9,18 @@ from pettingzoo import ParallelEnv
 from hexagon_env_parallel.helperDisplay import clearGrid, init_hexagons, initializeAgent, render
 from hexagon_env_parallel.helperDisplay import predatorDirectionGenerator,preyDirectionGenerator,predator_vision,prey_vision,direction_generator,axial_to_list,list_to_axial
 
-NO_OF_PREY = 20
-NO_OF_PREDATOR = 10
+NO_OF_PREY = 50
+NO_OF_PREDATOR = 30
 GRID_SIZE = (79,39)
 # prey energy gain while staying
-ALPHA = 15   # natural growth
+ALPHA = 4   # natural growth
+ 
 # predator energy gain while eating
-DELTA = 50   # 
+DELTA = 20   # 
+
 # predator energy loss while moving
-GAMMA = 1
+GAMMA = .2
+
 PREY_REWARD = 20
 PREDATOR_REWARD = 20
 
@@ -50,7 +53,9 @@ class Hex_Env(ParallelEnv):
 
         self.dead_predators = 0
         self.dead_preys = 0
-        self.timestep = 0        
+        self.timestep = 0    
+
+        self.terminationTrue = False    
 
         # optional: we can define the observation and action spaces here as attributes to be used in their corresponding methods
         self._action_spaces = dict([(agent, Discrete(7)) for agent in self.possible_prey] + [(agent,Discrete(9)) for agent in self.possible_predator])
@@ -122,7 +127,7 @@ class Hex_Env(ParallelEnv):
 
     def predatorSpawn(self,predator):
         self.new_predators+=1
-        name = "predator_"+str(999-self.new_predators)
+        name = "predator_"+str(99999-self.new_predators)
         
         x,y = direction_generator(predator[0],predator[1],random.randint(1,6))
         self.predatorAgents.append([x,y,(-1,0),int(predator[3]/2),predator[4]])
@@ -159,7 +164,7 @@ class Hex_Env(ParallelEnv):
         x,y = direction_generator(prey[0],prey[1],random.randint(1,6))
         self.preyAgents.append([x,y,prey[2],int(prey[3]/2)])
         prey[3] = int(prey[3]/2)
-        name = "prey_"+str(999-self.new_predators)
+        name = "prey_"+str(99999-self.new_prey)
         self.prey_agents.append(name)
         self.agents.append(name)
         self.terminations[name] = False
@@ -168,7 +173,7 @@ class Hex_Env(ParallelEnv):
         prey[3] = int(prey[3]/2)
 
     def renderAgents(self):
-        Color = list(np.linspace(0,179,num = 180,dtype=np.int16))
+        Color = list(np.linspace(0,1,num = 180,dtype=np.int16))
         Color.reverse()
         hexagons = self.hexagons.copy()
         
@@ -186,7 +191,7 @@ class Hex_Env(ParallelEnv):
 
         for predator in self.predatorAgents:
             predatorIndex = axial_to_list((predator[0],predator[1]))
-            hexagons[predatorIndex].colour = tuple([255,Color[predator[3]],Color[predator[3]]])
+            hexagons[predatorIndex].colour = tuple([255,Color[int(predator[3])],Color[int(predator[3])]])
         for prey in self.preyAgents:
             preyIndex = axial_to_list((prey[0],prey[1]))
             hexagons[preyIndex].colour = tuple([Color[prey[3]],255,Color[prey[3]]])
@@ -213,7 +218,7 @@ class Hex_Env(ParallelEnv):
                 index = self.prey_agents.index(i)
                 # if stayed at same place increase energy
                 if actions[i] == 7 :
-                    self.preyAgents[index][3] += 15
+                    self.preyAgents[index][3] += ALPHA
                     self.rewards[i] = PREY_REWARD
                 else:
                     # elif moved from a place then move to that place
@@ -265,6 +270,7 @@ class Hex_Env(ParallelEnv):
         return np.array(self.observations[agent])
 
     def close(self):
+        self.terminationTrue = True
         pygame.display.quit()
 
     @functools.lru_cache(maxsize=None)
